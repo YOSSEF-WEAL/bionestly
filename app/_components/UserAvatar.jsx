@@ -14,7 +14,7 @@ async function UserAvatar() {
           <Button variant="outline" size="lg">
             {session.user.name}
             <Avatar>
-              <AvatarImage src={session.user.image} />
+              <AvatarImage src={session?.user?.image} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </Button>

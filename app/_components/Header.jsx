@@ -1,7 +1,7 @@
 import UserAvatar from "@/app/_components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SignOutButton from "./SignOutButton";
+import SignOutButton from "@/app/_components/SignOutButton";
 
 function Header() {
   return (

@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 function SignOutButton() {
   return (
     <form action={signOtAction}>
-      <Button>
+      <Button type="submit">
         LogOut
         <LogOut />
       </Button>
