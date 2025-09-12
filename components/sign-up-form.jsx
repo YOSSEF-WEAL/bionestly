@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { signUpWithPassword } from "@/app/_services/actions";
 import { createClient } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,54 +14,39 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useActionState } from "react";
+import React from "react";
 import Image from "next/image";
 
 export function SignUpForm({ className, ...props }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(signUpWithPassword, null);
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
-    if (password !== repeatPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
+  // Check for server action errors
+  React.useEffect(() => {
+    if (state?.error) {
+      setError(state.error);
     }
+  }, [state]);
 
+  const handleOAuthLogin = async () => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      setError(null);
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          emailRedirectTo: `${window.location.origin}/account`,
+          redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
         },
       });
       
-      if (error) throw error;
-      
-      // If user is immediately confirmed (email confirmation disabled)
-      if (data.user && !data.user.email_confirmed_at) {
-        router.push("/auth/sign-up-success");
-      } else if (data.user && data.user.email_confirmed_at) {
-        // User is confirmed, redirect to account
-        window.location.href = "/account";
-      } else {
-        router.push("/auth/sign-up-success");
+      if (error) {
+        console.error("OAuth error:", error);
+        setError("فشل في تسجيل الدخول بـ Google: " + error.message);
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error("OAuth catch error:", err);
+      setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
     }
   };
 
@@ -72,17 +58,16 @@ export function SignUpForm({ className, ...props }) {
           <CardDescription>قم بإنشاء حساب جديد</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignUp}>
+          <form action={formAction}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -91,10 +76,9 @@ export function SignUpForm({ className, ...props }) {
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -103,15 +87,14 @@ export function SignUpForm({ className, ...props }) {
                 </div>
                 <Input
                   id="repeat-password"
+                  name="repeatPassword"
                   type="password"
                   required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
@@ -135,25 +118,7 @@ export function SignUpForm({ className, ...props }) {
               type="button"
               className="w-full"
               variant="outline"
-              onClick={async () => {
-                try {
-                  const supabase = createClient();
-                  const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: "google",
-                    options: {
-                      redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
-                    },
-                  });
-                  
-                  if (error) {
-                    console.error("OAuth error:", error);
-                    setError("فشل في تسجيل الدخول بـ Google: " + error.message);
-                  }
-                } catch (err) {
-                  console.error("OAuth catch error:", err);
-                  setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
-                }
-              }}
+              onClick={handleOAuthLogin}
             >
               <Image
                 src="https://authjs.dev/img/providers/google.svg"

@@ -18,12 +18,10 @@ import {
   LogOutIcon,
   ChevronDownIcon,
 } from "lucide-react";
-import { createClient } from "@/lib/client";
-import { useRouter } from "next/navigation";
+import { logout } from "@/app/_services/actions";
 
 export default function UserMenu({ user, mobile = false, onAction }) {
   const [open, setOpen] = React.useState(false);
-  const router = useRouter();
 
   const closeAll = () => {
     setOpen(false);
@@ -31,11 +29,16 @@ export default function UserMenu({ user, mobile = false, onAction }) {
   };
 
   const onLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    closeAll();
-    // Force refresh to update the session state
-    window.location.href = "/auth/login";
+    try {
+      await logout();
+      closeAll();
+      // The server action will handle the redirect to home page
+    } catch (error) {
+      console.error('Logout error:', error);
+      closeAll();
+      // Fallback redirect to home page
+      window.location.href = "/";
+    }
   };
 
   if (mobile) {

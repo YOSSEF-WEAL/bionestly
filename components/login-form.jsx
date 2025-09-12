@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { signInWithPassword } from "@/app/_services/actions";
 import { createClient } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,46 +14,45 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useActionState } from "react";
 import React from "react";
 import Image from "next/image";
 
 export function LoginForm({ className, ...props }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(signInWithPassword, null);
 
-  // Check for OAuth errors in URL
+  // Check for OAuth errors in URL and server action errors
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const errorParam = urlParams.get('error');
     if (errorParam) {
       setError(`خطأ OAuth: ${decodeURIComponent(errorParam)}`);
     }
-  }, []);
+    
+    if (state?.error) {
+      setError(state.error);
+    }
+  }, [state]);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
+  const handleOAuthLogin = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      setError(null);
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
+        },
       });
-      if (error) throw error;
       
-      // Force refresh to update the session state
-      window.location.href = "/account";
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+      if (error) {
+        console.error("OAuth error:", error);
+        setError("فشل في تسجيل الدخول بـ Google: " + error.message);
+      }
+    } catch (err) {
+      console.error("OAuth catch error:", err);
+      setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
     }
   };
 
@@ -66,17 +66,16 @@ export function LoginForm({ className, ...props }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin}>
+          <form action={formAction}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="grid gap-2">
@@ -91,15 +90,14 @@ export function LoginForm({ className, ...props }) {
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
@@ -126,25 +124,7 @@ export function LoginForm({ className, ...props }) {
               type="button"
               className="w-full"
               variant="outline"
-              onClick={async () => {
-                try {
-                  const supabase = createClient();
-                  const { data, error } = await supabase.auth.signInWithOAuth({
-                    provider: "google",
-                    options: {
-                      redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
-                    },
-                  });
-                  
-                  if (error) {
-                    console.error("OAuth error:", error);
-                    setError("فشل في تسجيل الدخول بـ Google: " + error.message);
-                  }
-                } catch (err) {
-                  console.error("OAuth catch error:", err);
-                  setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
-                }
-              }}
+              onClick={handleOAuthLogin}
             >
               <Image
                 src="https://authjs.dev/img/providers/google.svg"

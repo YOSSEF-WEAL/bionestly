@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/client";
+import { updateUserPassword } from "@/app/_services/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,33 +12,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useActionState } from "react";
+import React from "react";
 
 export function UpdatePasswordForm({ className, ...props }) {
-  const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(updateUserPassword, null);
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { data, error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
-      
-      // Force refresh to update the session state
-      window.location.href = "/account";
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+  // Check for server action errors
+  React.useEffect(() => {
+    if (state?.error) {
+      setError(state.error);
     }
-  };
+  }, [state]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -50,22 +36,21 @@ export function UpdatePasswordForm({ className, ...props }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleForgotPassword}>
+          <form action={formAction}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="password">كلمة المرور الجديدة</Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   placeholder="كلمة المرور الجديدة"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "جاري الحفظ..." : "حفظ كلمة المرور الجديدة"}
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "جاري الحفظ..." : "حفظ كلمة المرور الجديدة"}
               </Button>
             </div>
           </form>
