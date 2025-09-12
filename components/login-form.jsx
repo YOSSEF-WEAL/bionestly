@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import React from "react";
 import Image from "next/image";
 
 export function LoginForm({ className, ...props }) {
@@ -24,6 +25,15 @@ export function LoginForm({ className, ...props }) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Check for OAuth errors in URL
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    if (errorParam) {
+      setError(`خطأ OAuth: ${decodeURIComponent(errorParam)}`);
+    }
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     const supabase = createClient();
@@ -31,13 +41,14 @@ export function LoginForm({ className, ...props }) {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/account");
+      
+      // Force refresh to update the session state
+      window.location.href = "/account";
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -49,16 +60,16 @@ export function LoginForm({ className, ...props }) {
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            أدخل بريدك الإلكتروني أدناه لتسجيل الدخول إلى حسابك
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -70,12 +81,12 @@ export function LoginForm({ className, ...props }) {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">كلمة المرور</Label>
                   <Link
                     href="/auth/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    هل نسيت كلمة المرور؟
                   </Link>
                 </div>
                 <Input
@@ -88,16 +99,16 @@ export function LoginForm({ className, ...props }) {
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
+              ليس لديك حساب؟{" "}
               <Link
                 href="/auth/sign-up"
                 className="underline underline-offset-4"
               >
-                Sign up
+                إنشاء حساب
               </Link>
             </div>
             <div className="relative my-4">
@@ -106,7 +117,7 @@ export function LoginForm({ className, ...props }) {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  أو المتابعة عبر
                 </span>
               </div>
             </div>
@@ -116,13 +127,23 @@ export function LoginForm({ className, ...props }) {
               className="w-full"
               variant="outline"
               onClick={async () => {
-                const supabase = createClient();
-                await supabase.auth.signInWithOAuth({
-                  provider: "google",
-                  options: {
-                    redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
-                  },
-                });
+                try {
+                  const supabase = createClient();
+                  const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: "google",
+                    options: {
+                      redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
+                    },
+                  });
+                  
+                  if (error) {
+                    console.error("OAuth error:", error);
+                    setError("فشل في تسجيل الدخول بـ Google: " + error.message);
+                  }
+                } catch (err) {
+                  console.error("OAuth catch error:", err);
+                  setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
+                }
               }}
             >
               <Image
@@ -131,7 +152,7 @@ export function LoginForm({ className, ...props }) {
                 height={18}
                 width={18}
               />
-              <span>Continue with Google</span>
+              <span>المتابعة باستخدام Google</span>
             </Button>
           </form>
         </CardContent>

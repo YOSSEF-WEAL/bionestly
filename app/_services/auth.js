@@ -1,21 +1,2 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-
-export const {
-    auth,
-    signIn,
-    signOut,
-    handlers: { GET, POST },
-} = NextAuth({
-    providers: [
-        Google({
-            clientId: process.env.AUTH_GOOGLE_ID,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET,
-        }),
-    ],
-    pages: {
-        signIn: "/login",
-    },
-});
-
-
+// This file is no longer needed as we use Supabase Auth only
+// Keeping it empty to avoid import errors, will be removed later

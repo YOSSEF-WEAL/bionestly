@@ -38,15 +38,25 @@ export function SignUpForm({ className, ...props }) {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/account`,
         },
       });
+      
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+      
+      // If user is immediately confirmed (email confirmation disabled)
+      if (data.user && !data.user.email_confirmed_at) {
+        router.push("/auth/sign-up-success");
+      } else if (data.user && data.user.email_confirmed_at) {
+        // User is confirmed, redirect to account
+        window.location.href = "/account";
+      } else {
+        router.push("/auth/sign-up-success");
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -58,14 +68,14 @@ export function SignUpForm({ className, ...props }) {
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardTitle className="text-2xl">إنشاء حساب</CardTitle>
+          <CardDescription>قم بإنشاء حساب جديد</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -77,7 +87,7 @@ export function SignUpForm({ className, ...props }) {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">كلمة المرور</Label>
                 </div>
                 <Input
                   id="password"
@@ -89,7 +99,7 @@ export function SignUpForm({ className, ...props }) {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
+                  <Label htmlFor="repeat-password">تأكيد كلمة المرور</Label>
                 </div>
                 <Input
                   id="repeat-password"
@@ -101,13 +111,13 @@ export function SignUpForm({ className, ...props }) {
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
+              هل لديك حساب بالفعل؟{" "}
               <Link href="/auth/login" className="underline underline-offset-4">
-                Login
+                تسجيل الدخول
               </Link>
             </div>
             <div className="relative my-4">
@@ -116,7 +126,7 @@ export function SignUpForm({ className, ...props }) {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
+                  أو المتابعة عبر
                 </span>
               </div>
             </div>
@@ -126,13 +136,23 @@ export function SignUpForm({ className, ...props }) {
               className="w-full"
               variant="outline"
               onClick={async () => {
-                const supabase = createClient();
-                await supabase.auth.signInWithOAuth({
-                  provider: "google",
-                  options: {
-                    redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
-                  },
-                });
+                try {
+                  const supabase = createClient();
+                  const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: "google",
+                    options: {
+                      redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
+                    },
+                  });
+                  
+                  if (error) {
+                    console.error("OAuth error:", error);
+                    setError("فشل في تسجيل الدخول بـ Google: " + error.message);
+                  }
+                } catch (err) {
+                  console.error("OAuth catch error:", err);
+                  setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
+                }
               }}
             >
               <Image
@@ -141,7 +161,7 @@ export function SignUpForm({ className, ...props }) {
                 height={18}
                 width={18}
               />
-              <span>Continue with Google</span>
+              <span>المتابعة باستخدام Google</span>
             </Button>
           </form>
         </CardContent>
