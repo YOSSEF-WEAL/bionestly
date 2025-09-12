@@ -5,15 +5,15 @@ import SignOutButton from "@/app/_components/SignOutButton";
 
 function Header() {
   return (
-    <header>
+    <header className="flex justify-between gap-2 items-center h-20 px-5 bg-blue-100">
       <UserAvatar />
       <SignOutButton />
-      <Button size="lg">
-        <Link href={"account"}>Account</Link>
-      </Button>
-      <Button size="lg">
-        <Link href={"login"}>login</Link>
-      </Button>
+      <Link href={"account"}>
+        <Button size="lg">Account</Button>
+      </Link>
+      <Link href={"login"}>
+        <Button size="lg">login</Button>
+      </Link>
     </header>
   );
 }
