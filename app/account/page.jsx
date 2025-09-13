@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Profile from "../_blocks/Profile";
 import { ChartColumn, LayoutPanelTop, Link, User } from "lucide-react";
 import Links from "../_blocks/Links";
+import Templates from "../_blocks/Templates";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -26,8 +27,6 @@ export default async function ProtectedPage() {
 
   // Get all available templates
   const templates = await getTemplates();
-
-  // console.log("🚀 ~ ProtectedPage ~ templates data:", templates);
 
   return (
     <div className="flex flex-col gap-6 justify-center items-center px-4">
@@ -61,7 +60,10 @@ export default async function ProtectedPage() {
           analytics
         </TabsContent>
         <TabsContent className={"w-full"} value="templates">
-          templates
+          <Templates
+            templatesData={templates}
+            myTemplate={profileData?.profile?.template}
+          />
         </TabsContent>
       </Tabs>
     </div>
