@@ -25,23 +25,12 @@ function Links({ linksData }) {
         return;
       }
       setUserEmail(user.email);
-      console.log("User email:", user.email);
     }
 
     fetchUser();
   }, []);
 
-  const handleAddLink = (newLinkData) => {
-    console.log("Adding new link:", newLinkData);
-    // هنا ممكن تستخدم addLink مع userEmail
-  };
-
-  const handleEditLink = (updatedLinkData) => {
-    console.log("Updating link:", updatedLinkData);
-  };
-
   const handleDeleteLink = (linkId) => {
-    console.log("Deleting link:", linkId);
     deleteLink(linkId);
   };
 
@@ -49,11 +38,7 @@ function Links({ linksData }) {
     <div className="w-full flex flex-col items-end gap-6">
       {/* Header with Add Button */}
       <div className="flex items-center justify-between w-full mt-2">
-        <DrawerAddLink
-          onAdd={handleAddLink}
-          existingLinks={sortedLinks}
-          userEmail={userEmail}
-        />
+        <DrawerAddLink existingLinks={sortedLinks} userEmail={userEmail} />
         <h2 className="text-base md:text-2xl font-bold text-end">
           الروابط المخصصة
         </h2>
@@ -92,7 +77,7 @@ function Links({ linksData }) {
                     </h3>
 
                     <div className="flex gap-2 justify-end">
-                      <DrawerEditLink linkData={link} onSave={handleEditLink} />
+                      <DrawerEditLink linkData={link} />
                       <DrawerDeleteLink
                         linkData={link}
                         onDelete={handleDeleteLink}
@@ -112,7 +97,6 @@ function Links({ linksData }) {
               </h3>
               <p className="text-gray-500">ابدأ بإضافة أول رابط لك</p>
               <DrawerAddLink
-                onAdd={handleAddLink}
                 existingLinks={sortedLinks}
                 userEmail={userEmail}
               />

@@ -119,7 +119,6 @@ export async function deleteLink(linkId)
 {
     const supabase = await createClient();
 
-    console.log("🛠️ Attempting to soft delete link with id:", linkId);
 
     try
     {

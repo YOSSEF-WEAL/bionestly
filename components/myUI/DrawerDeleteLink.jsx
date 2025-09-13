@@ -37,11 +37,8 @@ function DrawerDeleteLink({ linkData, onDelete }) {
       const result = await deleteLink(linkData.id);
       if (result?.error) {
         toast.error("فشل في حذف الرابط: " + result.error);
-        console.error("Delete error:", result.error);
       } else if (result?.success) {
         toast.success("تم حذف الرابط بنجاح");
-        console.log("Link deleted successfully:", result.deletedLink);
-
         // Call the parent callback to update UI
         if (onDelete) {
           onDelete(linkData.id);
@@ -51,7 +48,6 @@ function DrawerDeleteLink({ linkData, onDelete }) {
       }
     } catch (error) {
       toast.error("حدث خطأ أثناء حذف الرابط");
-      console.error("Error deleting link:", error);
     } finally {
       setIsDeleting(false);
     }

@@ -1,22 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { updateTemplate } from "../_services/actionsProfile";
+import { toast } from "sonner";
 
 function Templates({ templatesData, myTemplate }) {
   const [selectedTemplate, setSelectedTemplate] = useState(myTemplate);
+  const [isPending, startTransition] = useTransition();
 
   const handleSelect = (id) => {
     setSelectedTemplate(id);
+  };
+
+  const handleSave = () => {
+    if (!selectedTemplate) return;
+    startTransition(async () => {
+      const res = await updateTemplate(selectedTemplate);
+      if (res?.error) {
+        toast.error("خطأ في الحفظ: " + res.error);
+      } else {
+        toast.success("تم الحفظ بنجاح");
+      }
+    });
   };
 
   return (
     <div className="w-full flex flex-col items-end gap-6 mb-4">
       {/* Header */}
       <div className="flex items-center justify-between w-full mt-2 mb-5">
-        <Button variant="save">
-          حفظ
+        <Button variant="save" onClick={handleSave} disabled={isPending}>
+          {isPending ? "جاري الحفظ..." : "حفظ"}
           <Check />
         </Button>
         <h2 className="text-base md:text-2xl font-bold text-end">
@@ -32,7 +47,7 @@ function Templates({ templatesData, myTemplate }) {
           return (
             <div
               key={template.id}
-              className="relative group rounded-3xl overflow-hidden shadow-xl cursor-pointer flex-shrink-0 w-[48%] md:w-[300px] lg:w-[300px] h-80 md:h-[600px]"
+              className="relative group rounded-3xl overflow-hidden shadow-xl cursor-pointer flex-shrink-0 w-[48%] md:w-[300px] lg:w-[300px] h-80 md:h-140 lg:[600px]"
               onClick={() => handleSelect(template.id)}
             >
               {/* Template Image */}
@@ -62,7 +77,7 @@ function Templates({ templatesData, myTemplate }) {
 
               {/* Active Template Overlay */}
               {isSelected && (
-                <div className="absolute inset-0 bg-green-500/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-green-500/50 flex items-center justify-center">
                   <Check size={56} className="text-white drop-shadow-lg" />
                 </div>
               )}
