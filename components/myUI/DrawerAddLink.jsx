@@ -205,17 +205,17 @@ function AddLinkForm({
         />
       </div>
 
-      <div className="grid gap-3">
-        <Label htmlFor="add-image_url" className="text-right">
+      <div className="flex flex-row justify-between  gap-3">
+        <Label htmlFor="add-image_url" className="text-right w-fit">
           {showImageUpload ? "ارفع صورة أو أدخل رابط الصورة" : "رابط الصورة"}
         </Label>
 
         {formData.image_url && !showImageUpload ? (
-          <div className="space-y-3">
+          <div className="flex gap-1.5 items-center justify-between w-[78%]">
             <img
               src={formData.image_url}
               alt="معاينة الصورة"
-              className="w-full h-32 object-cover rounded-md border"
+              className="w-full h-20 object-cover rounded-md border"
               onError={() => setShowImageUpload(true)}
             />
             <Button
