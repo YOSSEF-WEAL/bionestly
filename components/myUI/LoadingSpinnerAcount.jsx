@@ -2,7 +2,7 @@ function LoadingSpinnerAcount() {
   return (
     <div className="flex flex-col justify-center items-center mt-10 gap-4">
       <div className="flex-col gap-4 w-full flex items-center justify-center">
-        <div className="w-28 h-28 border-8 text-blue-400 text-4xl animate-spin border-gray-300 flex items-center justify-center border-t-blue-400 rounded-full">
+        <div className="md:w-20 w-18 h-18 md:h-20 border-8 text-blue-400 text-2xl animate-spin border-gray-300 flex items-center justify-center border-t-blue-400 rounded-full">
           {/* logo hear */}
           {/* <svg
             viewBox="0 0 24 24"

@@ -24,6 +24,7 @@ import {
 import ProfileImageUploader from "@/components/myUI/ProfileImageUploader";
 
 function Profile({ profileData }) {
+  console.log("🚀 ~ Profile ~ profileData:", profileData);
   const [formData, setFormData] = React.useState({
     display_name: profileData?.display_name || "",
     bio: profileData?.bio || "",
@@ -98,6 +99,7 @@ function Profile({ profileData }) {
       whatsapp_url: profileData?.whatsapp_url || "",
       avatar_url: profileData?.avatar_url || "",
       caver_url: profileData?.caver_url || "",
+      username: profileData?.username ?? "",
     });
     setIsEditing(false);
   };
@@ -115,7 +117,28 @@ function Profile({ profileData }) {
         </h3>
 
         <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between w-full mt-2">
-          <div className="flex flex-col-reverse w-full md:w-[75%] gap-4  items-end justify-end">
+          <div className="flex flex-row flex-wrap w-full md:w-[75%] gap-4  items-end justify-end">
+            {/* username */}
+            <div
+              className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
+              dir="rtl"
+            >
+              <Label htmlFor="username">الاسم في المتصفح</Label>
+              <div className="flex items-center rounded-md border border-input bg-background">
+                <span className="px-3 text-sm text-gray-500 border-r">
+                  bionestly/
+                </span>
+                <Input
+                  id="username"
+                  className="flex-1 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  placeholder="ادخل اسم المستخدم"
+                  value={formData.username}
+                  onChange={(e) => handleChange("username", e.target.value)}
+                  disabled={isSaving}
+                />
+              </div>
+            </div>
+
             {/* Bio */}
             <div
               className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"

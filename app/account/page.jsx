@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import LoadingSpinnerAcount from "@/components/myUI/LoadingSpinnerAcount";
+import Analytics from "../_blocks/Analytics";
 
 export default function AccountPage() {
   const [accountData, setAccountData] = useState(null);
@@ -87,7 +88,7 @@ export default function AccountPage() {
           <Links linksData={accountData.links} onRefresh={fetchAccountData} />
         </TabsContent>
         <TabsContent className={"w-full"} value="analytics">
-          احصائيات
+          <Analytics />
         </TabsContent>
         <TabsContent className={"w-full"} value="templates">
           <Templates
