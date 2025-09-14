@@ -12,10 +12,12 @@ import {
   TwitterIcon,
   MessageCircleIcon,
 } from "lucide-react";
-import { updateSocialMedia } from "@/app/_services/actionsProfile";
+import { updateProfile } from "@/app/_services/actionsProfile";
 
 function Profile({ profileData }) {
   const [formData, setFormData] = React.useState({
+    display_name: profileData?.display_name || "",
+    bio: profileData?.bio || "",
     facebook_url: profileData?.facebook_url || "",
     instagram_url: profileData?.instagram_url || "",
     twitter_url: profileData?.twitter_url || "",
@@ -25,7 +27,7 @@ function Profile({ profileData }) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // Define social media platforms with their icons and labels
+  // Define social media platforms
   const socialMediaPlatforms = [
     {
       key: "facebook_url",
@@ -61,15 +63,15 @@ function Profile({ profileData }) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const result = await updateSocialMedia(formData);
+      const result = await updateProfile(formData);
       if (result?.error) {
-        toast.error("فشل في تحديث الروابط: " + result.error);
+        toast.error("فشل في تحديث البيانات: " + result.error);
       } else {
-        toast.success("تم تحديث روابط السوشيال بنجاح");
+        toast.success("تم تحديث البيانات بنجاح");
         setIsEditing(false);
       }
     } catch (error) {
-      console.error("Error updating social media:", error);
+      console.error("Error updating profile:", error);
       toast.error("حدث خطأ أثناء التحديث");
     } finally {
       setIsSaving(false);
@@ -78,6 +80,8 @@ function Profile({ profileData }) {
 
   const handleCancel = () => {
     setFormData({
+      display_name: profileData?.display_name || "",
+      bio: profileData?.bio || "",
       facebook_url: profileData?.facebook_url || "",
       instagram_url: profileData?.instagram_url || "",
       twitter_url: profileData?.twitter_url || "",
@@ -88,22 +92,59 @@ function Profile({ profileData }) {
 
   return (
     <div className="w-full flex flex-col items-end gap-6">
-      {/* Profile header */}
-      <div className="flex items-center justify-end gap-4 p-3 bg-white shadow-lg rounded-lg w-full md:w-fit mt-2">
-        <div className="">
-          <h1 className="text-2xl font-bold text-end">
-            {profileData?.display_name}
-          </h1>
-          <p className="text-end">{profileData?.email}</p>
-        </div>
-        <div className="w-fit">
-          <Image
-            alt="avatar"
-            src={profileData?.avatar_url}
-            width={80}
-            height={80}
-            className="rounded-full transition-all duration-300 hover:scale-110"
-          />
+      {/* Basic Info section */}
+      <div className="w-full">
+        <h3 className="w-full text-end mb-2 font-medium text-2xl">
+          المعلومات الأساسية
+        </h3>
+        <div className="flex gap-4 items-center justify-between w-full mt-2">
+          <div className="flex w-full md:w-[75%] gap-4 flex-row items-end justify-end">
+            {/* Bio */}
+            <div
+              className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
+              dir="rtl"
+            >
+              <Label htmlFor="bio">الوصف</Label>
+              <Input
+                id="bio"
+                placeholder="اكتب الوصف هنا"
+                value={formData.bio}
+                onChange={(e) => handleChange("bio", e.target.value)}
+                disabled={isSaving}
+              />
+            </div>
+            {/* Display Name */}
+            <div
+              className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
+              dir="rtl"
+            >
+              <Label htmlFor="display_name">الاسم</Label>
+              <Input
+                id="display_name"
+                placeholder="اكتب اسمك هنا"
+                value={formData.display_name}
+                onChange={(e) => handleChange("display_name", e.target.value)}
+                disabled={isSaving}
+              />
+            </div>
+          </div>
+          {/* Avatar & Email */}
+          <div className="flex items-center justify-end gap-4 p-3 bg-white shadow-lg rounded-lg w-full md:w-fit">
+            <div>
+              <h1 className="text-2xl font-bold text-end">
+                {profileData?.display_name}
+              </h1>
+              <p className="text-end">{profileData?.email}</p>
+            </div>
+            <div className="relative rounded-full w-20 h-20 overflow-hidden">
+              <Image
+                alt="avatar"
+                src={profileData?.avatar_url}
+                fill
+                className=" transition-all duration-300 hover:scale-110"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -136,6 +177,7 @@ function Profile({ profileData }) {
           );
         })}
       </div>
+
       {/* Save / Cancel buttons */}
       {isEditing && (
         <div className="flex justify-end gap-3 mt-4 w-full mb-5">

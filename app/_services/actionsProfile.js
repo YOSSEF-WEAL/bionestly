@@ -3,11 +3,14 @@
 import { createClient } from "@/lib/server";
 import { revalidatePath } from "next/cache";
 
-export async function updateSocialMedia(formData)
+export async function updateProfile(formData)
 {
     const supabase = await createClient();
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const {
+        data: { user },
+        error: userError,
+    } = await supabase.auth.getUser();
 
     if (userError || !user)
     {
@@ -17,6 +20,8 @@ export async function updateSocialMedia(formData)
     const { data, error } = await supabase
         .from("profiles")
         .update({
+            display_name: formData.display_name,
+            bio: formData.bio,
             facebook_url: formData.facebook_url,
             instagram_url: formData.instagram_url,
             twitter_url: formData.twitter_url,
@@ -32,10 +37,11 @@ export async function updateSocialMedia(formData)
         return { error: error.message };
     }
 
-    revalidatePath('/account');
+    revalidatePath("/account");
 
     return { data };
 }
+
 
 
 export async function updateTemplate(templateId)

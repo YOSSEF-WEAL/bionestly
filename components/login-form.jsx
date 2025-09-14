@@ -20,16 +20,19 @@ import Image from "next/image";
 
 export function LoginForm({ className, ...props }) {
   const [error, setError] = useState(null);
-  const [state, formAction, isPending] = useActionState(signInWithPassword, null);
+  const [state, formAction, isPending] = useActionState(
+    signInWithPassword,
+    null
+  );
 
   // Check for OAuth errors in URL and server action errors
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const errorParam = urlParams.get('error');
+    const errorParam = urlParams.get("error");
     if (errorParam) {
       setError(`خطأ OAuth: ${decodeURIComponent(errorParam)}`);
     }
-    
+
     if (state?.error) {
       setError(state.error);
     }
@@ -45,7 +48,7 @@ export function LoginForm({ className, ...props }) {
           redirectTo: `${window.location.origin}/auth/oauth?next=/account`,
         },
       });
-      
+
       if (error) {
         console.error("OAuth error:", error);
         setError("فشل في تسجيل الدخول بـ Google: " + error.message);
@@ -83,17 +86,12 @@ export function LoginForm({ className, ...props }) {
                   <Label htmlFor="password">كلمة المرور</Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline w-full"
                   >
                     هل نسيت كلمة المرور؟
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                />
+                <Input id="password" name="password" type="password" required />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isPending}>
