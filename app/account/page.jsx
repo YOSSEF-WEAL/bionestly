@@ -11,14 +11,7 @@ import {
   Link as LinkIcon,
   User,
 } from "lucide-react";
-
-function LoadingSpinner() {
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
-    </div>
-  );
-}
+import LoadingSpinnerAcount from "@/components/myUI/LoadingSpinnerAcount";
 
 export default function AccountPage() {
   const [accountData, setAccountData] = useState(null);
@@ -53,7 +46,7 @@ export default function AccountPage() {
     fetchAccountData();
   }, []);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinnerAcount />;
   if (error)
     return <div className="text-center text-red-500 mt-10">{error}</div>;
   if (!accountData || !accountData.profile) {
