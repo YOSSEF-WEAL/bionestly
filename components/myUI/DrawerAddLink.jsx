@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation"; // Step 1: Import useRouter
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -29,8 +28,7 @@ import { fetchUrlMetadata } from "@/lib/url-metadata";
 import { addLink } from "@/app/_services/actionLinks";
 import { toast } from "sonner";
 
-// The component no longer needs the 'onAdd' prop
-function DrawerAddLink({ existingLinks = [], userEmail }) {
+function DrawerAddLink({ existingLinks = [], userEmail, onRefresh }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -53,6 +51,7 @@ function DrawerAddLink({ existingLinks = [], userEmail }) {
           setOpen={setOpen}
           existingLinks={existingLinks}
           userEmail={userEmail}
+          onRefresh={onRefresh}
         />
       </DialogContent>
     </Dialog>
@@ -75,6 +74,7 @@ function DrawerAddLink({ existingLinks = [], userEmail }) {
           setOpen={setOpen}
           existingLinks={existingLinks}
           userEmail={userEmail}
+          onRefresh={onRefresh}
           className="px-4"
         />
         <DrawerFooter className="pt-2">
@@ -89,8 +89,13 @@ function DrawerAddLink({ existingLinks = [], userEmail }) {
 
 export default DrawerAddLink;
 
-function AddLinkForm({ setOpen, existingLinks, userEmail, className }) {
-  const router = useRouter(); // Step 2: Initialize the router
+function AddLinkForm({
+  setOpen,
+  existingLinks,
+  userEmail,
+  onRefresh,
+  className,
+}) {
   const [formData, setFormData] = React.useState({
     title: "",
     url: "",
@@ -145,7 +150,7 @@ function AddLinkForm({ setOpen, existingLinks, userEmail, className }) {
       } else {
         toast.success("تم إضافة الرابط بنجاح");
         setOpen(false);
-        router.refresh(); // Step 3: Refresh the page data
+        if (onRefresh) onRefresh();
       }
     } catch (err) {
       toast.error("حدث خطأ أثناء إضافة الرابط");
@@ -163,7 +168,6 @@ function AddLinkForm({ setOpen, existingLinks, userEmail, className }) {
       onSubmit={handleSubmit}
       dir="rtl"
     >
-      {/* Form fields remain the same */}
       <div className="grid gap-3">
         <Label htmlFor="add-url" className="text-right">
           الرابط

@@ -26,50 +26,36 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    async function fetchData(isRetry = false) {
-      try {
-        if (!isRetry) {
-          setLoading(true);
-        }
-
-        const response = await fetch("/api/account");
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "فشل في جلب البيانات");
-        }
-        const data = await response.json();
-
-        if (!data || !data.user) {
-          throw new Error(
-            "لم يتم العثور على المستخدم. يرجى تسجيل الدخول مرة أخرى."
-          );
-        }
-
-        if (!data.profile && !isRetry) {
-          setTimeout(() => fetchData(true), 1500);
-        } else {
-          setAccountData(data);
-          setTemplates(data.templates);
-          setLoading(false);
-        }
-      } catch (e) {
-        setError(e.message || "حدث خطأ أثناء جلب البيانات.");
-        setLoading(false);
+  const fetchAccountData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/account", { cache: "no-store" });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "فشل في جلب البيانات");
       }
+      const data = await response.json();
+      if (!data || !data.user) {
+        throw new Error(
+          "لم يتم العثور على المستخدم. يرجى تسجيل الدخول مرة أخرى."
+        );
+      }
+      setAccountData(data);
+      setTemplates(data.templates);
+      setLoading(false);
+    } catch (e) {
+      setError(e.message || "حدث خطأ أثناء جلب البيانات.");
+      setLoading(false);
     }
+  };
 
-    fetchData();
-  }, []); // Step 4: Remove searchParams from the dependency array
+  useEffect(() => {
+    fetchAccountData();
+  }, []);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error) {
+  if (loading) return <LoadingSpinner />;
+  if (error)
     return <div className="text-center text-red-500 mt-10">{error}</div>;
-  }
-
   if (!accountData || !accountData.profile) {
     return (
       <div className="text-center mt-10">
@@ -100,11 +86,12 @@ export default function AccountPage() {
             <User />
           </TabsTrigger>
         </TabsList>
+
         <TabsContent className={"w-full"} value="account">
           <Profile profileData={accountData.profile} />
         </TabsContent>
         <TabsContent className={"w-full"} value="links">
-          <Links linksData={accountData.links} />
+          <Links linksData={accountData.links} onRefresh={fetchAccountData} />
         </TabsContent>
         <TabsContent className={"w-full"} value="analytics">
           احصائيات

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation"; // Step 1: Import useRouter
 import { Trash2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -27,9 +26,7 @@ import {
 import { deleteLink } from "@/app/_services/actionLinks";
 import { toast } from "sonner";
 
-// The component no longer needs the 'onDelete' prop
-function DrawerDeleteLink({ linkData }) {
-  const router = useRouter(); // Step 2: Initialize the router
+function DrawerDeleteLink({ linkData, onRefresh }) {
   const [open, setOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -43,7 +40,7 @@ function DrawerDeleteLink({ linkData }) {
       } else if (result?.success) {
         toast.success("تم حذف الرابط بنجاح");
         setOpen(false);
-        router.refresh(); // Step 3: Refresh the page data
+        if (onRefresh) onRefresh();
       }
     } catch (error) {
       toast.error("حدث خطأ أثناء حذف الرابط");
@@ -146,7 +143,6 @@ function DeleteConfirmation({
       className={cn("flex flex-col w-full items-start gap-6", className)}
       dir="rtl"
     >
-      {/* Link Preview */}
       <div className="bg-gray-50 rounded-lg p-4 border w-full">
         <div className="flex items-center gap-3" dir="rtl">
           <img
@@ -166,7 +162,6 @@ function DeleteConfirmation({
         </div>
       </div>
 
-      {/* Warning Message */}
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <div className="flex items-start gap-3" dir="rtl">
           <AlertTriangle
@@ -183,7 +178,6 @@ function DeleteConfirmation({
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex gap-3 justify-end w-full">
         <Button
           variant="outline"

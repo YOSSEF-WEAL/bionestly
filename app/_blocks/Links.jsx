@@ -8,8 +8,7 @@ import DrawerDeleteLink from "@/components/myUI/DrawerDeleteLink";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/client";
 
-// This component is now much simpler
-function Links({ linksData }) {
+function Links({ linksData, onRefresh }) {
   const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
@@ -25,13 +24,12 @@ function Links({ linksData }) {
     fetchUserEmail();
   }, []);
 
-  // The component now directly uses the sorted linksData prop
   const sortedLinks = linksData?.sort((a, b) => a.order - b.order) || [];
 
   return (
     <div className="w-full flex flex-col items-end gap-6">
       <div className="flex items-center justify-between w-full mt-2">
-        <DrawerAddLink userEmail={userEmail} />
+        <DrawerAddLink userEmail={userEmail} onRefresh={onRefresh} />
         <h2 className="text-base md:text-2xl font-bold text-end">
           الروابط المخصصة
         </h2>
@@ -68,8 +66,8 @@ function Links({ linksData }) {
                     </h3>
 
                     <div className="flex gap-2 justify-end">
-                      <DrawerEditLink linkData={link} />
-                      <DrawerDeleteLink linkData={link} />
+                      <DrawerEditLink linkData={link} onRefresh={onRefresh} />
+                      <DrawerDeleteLink linkData={link} onRefresh={onRefresh} />
                     </div>
                   </div>
                 </div>
@@ -84,7 +82,7 @@ function Links({ linksData }) {
                 لا توجد روابط
               </h3>
               <p className="text-gray-500">ابدأ بإضافة أول رابط لك</p>
-              <DrawerAddLink userEmail={userEmail} />
+              <DrawerAddLink userEmail={userEmail} onRefresh={onRefresh} />
             </div>
           </div>
         )}
