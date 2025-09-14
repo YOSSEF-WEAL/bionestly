@@ -27,7 +27,6 @@ function Profile({ profileData }) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // Define social media platforms
   const socialMediaPlatforms = [
     {
       key: "facebook_url",
@@ -90,14 +89,18 @@ function Profile({ profileData }) {
     setIsEditing(false);
   };
 
+  // Define a placeholder image URL
+  const placeholderAvatar =
+    "https://ajxeqiiumzuqfljbkhln.supabase.co/storage/v1/object/public/app%20images/user_Placeholder.png";
+
   return (
-    <div className="w-full flex flex-col items-end gap-6">
+    <div className="w-full flex flex-col items-end gap-6 mb-5">
       {/* Basic Info section */}
-      <div className="w-full">
+      <div className="w-full mt-4">
         <h3 className="w-full text-end mb-2 font-medium text-2xl">
           المعلومات الأساسية
         </h3>
-        <div className="flex gap-4 items-center justify-between w-full mt-2">
+        <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between w-full mt-2">
           <div className="flex w-full md:w-[75%] gap-4 flex-row items-end justify-end">
             {/* Bio */}
             <div
@@ -139,9 +142,9 @@ function Profile({ profileData }) {
             <div className="relative rounded-full w-20 h-20 overflow-hidden">
               <Image
                 alt="avatar"
-                src={profileData?.avatar_url}
+                src={profileData?.avatar_url || placeholderAvatar}
                 fill
-                className=" transition-all duration-300 hover:scale-110"
+                className="object-cover transition-all duration-300 hover:scale-110"
               />
             </div>
           </div>

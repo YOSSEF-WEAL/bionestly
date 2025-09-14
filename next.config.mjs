@@ -14,6 +14,11 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'authjs.dev',
             },
+            {
+                // This is the new entry for your Supabase Storage
+                protocol: 'https',
+                hostname: 'ajxeqiiumzuqfljbkhln.supabase.co',
+            },
         ],
     },
 };

@@ -1,32 +1,94 @@
-import { redirect } from "next/navigation";
-import { LogoutButton } from "@/components/logout-button";
-import { createClient } from "@/lib/server";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  getProfileWithLinksByEmail,
-  getTemplates,
-} from "@/app/_services/data-services";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Profile from "../_blocks/Profile";
-import { ChartColumn, LayoutPanelTop, Link, User } from "lucide-react";
 import Links from "../_blocks/Links";
 import Templates from "../_blocks/Templates";
+import {
+  ChartColumn,
+  LayoutPanelTop,
+  Link as LinkIcon,
+  User,
+} from "lucide-react";
 
-export default async function ProtectedPage() {
-  const supabase = await createClient();
+function LoadingSpinner() {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+    </div>
+  );
+}
 
-  const { data, error } = await supabase.auth.getClaims();
-  if (error || !data?.claims) {
-    redirect("/auth/login");
+export default function AccountPage() {
+  const [accountData, setAccountData] = useState(null);
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("new_user") === "true") {
+      toast.success("تم إنشاء الحساب بنجاح!", {
+        description: "مرحباً بك في صفحتك الشخصية.",
+      });
+      window.history.replaceState(null, "", "/account");
+    }
+
+    async function fetchData(isRetry = false) {
+      try {
+        if (!isRetry) {
+          setLoading(true);
+        }
+
+        const response = await fetch("/api/account");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "فشل في جلب البيانات");
+        }
+        const data = await response.json();
+
+        if (!data || !data.user) {
+          throw new Error(
+            "لم يتم العثور على المستخدم. يرجى تسجيل الدخول مرة أخرى."
+          );
+        }
+
+        if (!data.profile && !isRetry) {
+          setTimeout(() => fetchData(true), 1500); // Retry after 1.5s
+        } else {
+          setAccountData(data);
+          setTemplates(data.templates);
+          setLoading(false);
+        }
+      } catch (e) {
+        setError(e.message || "حدث خطأ أثناء جلب البيانات.");
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [searchParams]);
+
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
-  // Get profile and links data using the user's email
-  const userEmail = data.claims.email;
-  const profileData = await getProfileWithLinksByEmail(userEmail);
+  if (error) {
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
+  }
 
-  // Get all available templates
-  const templates = await getTemplates();
+  if (!accountData || !accountData.profile) {
+    return (
+      <div className="text-center mt-10">
+        <h1>جاري إعداد حسابك...</h1>
+        <p>إذا استمرت هذه الرسالة، يرجى تحديث الصفحة.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 justify-center items-center px-4">
@@ -41,28 +103,27 @@ export default async function ProtectedPage() {
             <LayoutPanelTop />
           </TabsTrigger>
           <TabsTrigger value="links">
-            <span className="hidden md:block">اللينكات</span>
-            <Link />
+            <span className="hidden md:block">الروابط</span>
+            <LinkIcon />
           </TabsTrigger>
           <TabsTrigger value="account">
             <span className="hidden md:block">الملف الشخصي</span>
-
             <User />
           </TabsTrigger>
         </TabsList>
         <TabsContent className={"w-full"} value="account">
-          <Profile profileData={profileData?.profile} />
+          <Profile profileData={accountData.profile} />
         </TabsContent>
         <TabsContent className={"w-full"} value="links">
-          <Links linksData={profileData?.links} />
+          <Links linksData={accountData.links} />
         </TabsContent>
         <TabsContent className={"w-full"} value="analytics">
-          analytics
+          احصائيات
         </TabsContent>
         <TabsContent className={"w-full"} value="templates">
           <Templates
             templatesData={templates}
-            myTemplate={profileData?.profile?.template}
+            myTemplate={accountData.profile?.template}
           />
         </TabsContent>
       </Tabs>
