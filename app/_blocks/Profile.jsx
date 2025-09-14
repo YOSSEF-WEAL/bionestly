@@ -115,7 +115,7 @@ function Profile({ profileData }) {
         </h3>
 
         <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between w-full mt-2">
-          <div className="flex flex-col-reverse w-full md:w-[75%] gap-4 flex-col items-end justify-end">
+          <div className="flex flex-col-reverse w-full md:w-[75%] gap-4  items-end justify-end">
             {/* Bio */}
             <div
               className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
