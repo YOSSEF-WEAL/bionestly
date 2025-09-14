@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/server";
 import { revalidatePath } from "next/cache";
 
-export async function updateProfile(formData)
+export async function updateProfile(updates)
 {
     const supabase = await createClient();
 
@@ -17,19 +17,13 @@ export async function updateProfile(formData)
         return { error: "لم يتم العثور على مستخدم مسجل دخول" };
     }
 
+    // هنا updates ممكن تحتوي avatar_url أو caver_url أو باقي الحقول
     const { data, error } = await supabase
         .from("profiles")
-        .update({
-            display_name: formData.display_name,
-            bio: formData.bio,
-            facebook_url: formData.facebook_url,
-            instagram_url: formData.instagram_url,
-            twitter_url: formData.twitter_url,
-            whatsapp_url: formData.whatsapp_url,
-        })
+        .update(updates)
         .eq("user_id", user.id)
         .select()
-        .single();
+        .maybeSingle(); // أفضل من single() علشان ما يعملش error لو مفيش record
 
     if (error)
     {
@@ -37,12 +31,11 @@ export async function updateProfile(formData)
         return { error: error.message };
     }
 
+    // نعمل revalidate للصفحة عشان البيانات تتحدث
     revalidatePath("/account");
 
     return { data };
 }
-
-
 
 export async function updateTemplate(templateId)
 {
@@ -65,7 +58,7 @@ export async function updateTemplate(templateId)
         })
         .eq("user_id", user.id)
         .select()
-        .single();
+        .maybeSingle();
 
     if (error)
     {

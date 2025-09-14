@@ -13,6 +13,15 @@ import {
   MessageCircleIcon,
 } from "lucide-react";
 import { updateProfile } from "@/app/_services/actionsProfile";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import ProfileImageUploader from "@/components/myUI/ProfileImageUploader";
 
 function Profile({ profileData }) {
   const [formData, setFormData] = React.useState({
@@ -22,6 +31,8 @@ function Profile({ profileData }) {
     instagram_url: profileData?.instagram_url || "",
     twitter_url: profileData?.twitter_url || "",
     whatsapp_url: profileData?.whatsapp_url || "",
+    avatar_url: profileData?.avatar_url || "",
+    caver_url: profileData?.caver_url || "",
   });
 
   const [isEditing, setIsEditing] = React.useState(false);
@@ -85,23 +96,26 @@ function Profile({ profileData }) {
       instagram_url: profileData?.instagram_url || "",
       twitter_url: profileData?.twitter_url || "",
       whatsapp_url: profileData?.whatsapp_url || "",
+      avatar_url: profileData?.avatar_url || "",
+      caver_url: profileData?.caver_url || "",
     });
     setIsEditing(false);
   };
 
-  // Define a placeholder image URL
+  // صورة افتراضية
   const placeholderAvatar =
     "https://ajxeqiiumzuqfljbkhln.supabase.co/storage/v1/object/public/app%20images/user_Placeholder.png";
 
   return (
     <div className="w-full flex flex-col items-end gap-6 mb-5">
-      {/* Basic Info section */}
+      {/* Basic Info */}
       <div className="w-full mt-4">
         <h3 className="w-full text-end mb-2 font-medium text-2xl">
           المعلومات الأساسية
         </h3>
+
         <div className="flex flex-col-reverse md:flex-row gap-4 items-center justify-between w-full mt-2">
-          <div className="flex w-full md:w-[75%] gap-4 flex-row items-end justify-end">
+          <div className="flex flex-col-reverse w-full md:w-[75%] gap-4 flex-col items-end justify-end">
             {/* Bio */}
             <div
               className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
@@ -116,6 +130,7 @@ function Profile({ profileData }) {
                 disabled={isSaving}
               />
             </div>
+
             {/* Display Name */}
             <div
               className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
@@ -131,27 +146,90 @@ function Profile({ profileData }) {
               />
             </div>
           </div>
-          {/* Avatar & Email */}
-          <div className="flex items-center justify-end gap-4 p-3 bg-white shadow-lg rounded-lg w-full md:w-fit">
-            <div>
-              <h1 className="text-2xl font-bold text-end">
-                {profileData?.display_name}
-              </h1>
-              <p className="text-end">{profileData?.email}</p>
+          <div className="flex gap-2 w-full md:w-[40%]">
+            {/* Cover */}
+            <div className="flex flex-col items-center gap-2 p-3 bg-white shadow-lg rounded-lg w-full">
+              <div className="text-center">
+                <h1 className="text-base font-bold">صورة الغلاف</h1>
+              </div>
+
+              <div className="relative rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  alt="cover"
+                  src={formData.caver_url || placeholderAvatar}
+                  fill
+                  className="object-cover transition-all duration-300 hover:scale-110"
+                />
+              </div>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    تغيير صورة
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-right">
+                      تغيير صورة الغلاف
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <ProfileImageUploader
+                    fieldKey="caver_url"
+                    label="رفع صورة جديدة للغلاف"
+                    onUploaded={(url) =>
+                      setFormData((prev) => ({ ...prev, caver_url: url }))
+                    }
+                  />
+                  <AlertDialogCancel className="mt-4">إغلاق</AlertDialogCancel>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-            <div className="relative rounded-full w-20 h-20 overflow-hidden">
-              <Image
-                alt="avatar"
-                src={profileData?.avatar_url || placeholderAvatar}
-                fill
-                className="object-cover transition-all duration-300 hover:scale-110"
-              />
+
+            {/* Avatar & Email */}
+            <div className="flex flex-col items-center gap-2 p-3 bg-white shadow-lg rounded-lg w-full">
+              <div className="text-center">
+                <h1 className="text-base font-bold">
+                  {formData?.display_name}
+                </h1>
+              </div>
+
+              <div className="relative rounded-full w-24 h-24 overflow-hidden">
+                <Image
+                  alt="avatar"
+                  src={formData.avatar_url || placeholderAvatar}
+                  fill
+                  className="object-cover transition-all duration-300 hover:scale-110"
+                />
+              </div>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    تغيير الصورة
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-right">
+                      تغيير الصورة الشخصية
+                    </AlertDialogTitle>
+                  </AlertDialogHeader>
+                  <ProfileImageUploader
+                    fieldKey="avatar_url"
+                    label="رفع صورة شخصية جديدة"
+                    onUploaded={(url) =>
+                      setFormData((prev) => ({ ...prev, avatar_url: url }))
+                    }
+                  />
+                  <AlertDialogCancel className="mt-4">إغلاق</AlertDialogCancel>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Social Media section */}
+      {/* Social Media */}
       <div className="flex flex-row flex-wrap justify-end gap-4 w-full">
         <h3 className="w-full text-end mb-2 font-medium text-2xl">
           مواقع التواصل الاجتماعي
@@ -181,7 +259,7 @@ function Profile({ profileData }) {
         })}
       </div>
 
-      {/* Save / Cancel buttons */}
+      {/* Save / Cancel */}
       {isEditing && (
         <div className="flex justify-end gap-3 mt-4 w-full mb-5">
           <Button onClick={handleCancel} variant="outline" disabled={isSaving}>
