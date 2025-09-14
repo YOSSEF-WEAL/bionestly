@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Plus, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation"; // Step 1: Import useRouter
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,8 @@ import { fetchUrlMetadata } from "@/lib/url-metadata";
 import { addLink } from "@/app/_services/actionLinks";
 import { toast } from "sonner";
 
-function DrawerAddLink({ onAdd, existingLinks = [], userEmail }) {
+// The component no longer needs the 'onAdd' prop
+function DrawerAddLink({ existingLinks = [], userEmail }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -48,7 +50,6 @@ function DrawerAddLink({ onAdd, existingLinks = [], userEmail }) {
           </DialogDescription>
         </DialogHeader>
         <AddLinkForm
-          onAdd={onAdd}
           setOpen={setOpen}
           existingLinks={existingLinks}
           userEmail={userEmail}
@@ -71,7 +72,6 @@ function DrawerAddLink({ onAdd, existingLinks = [], userEmail }) {
           </DialogDescription>
         </DrawerHeader>
         <AddLinkForm
-          onAdd={onAdd}
           setOpen={setOpen}
           existingLinks={existingLinks}
           userEmail={userEmail}
@@ -89,7 +89,8 @@ function DrawerAddLink({ onAdd, existingLinks = [], userEmail }) {
 
 export default DrawerAddLink;
 
-function AddLinkForm({ onAdd, setOpen, existingLinks, userEmail, className }) {
+function AddLinkForm({ setOpen, existingLinks, userEmail, className }) {
+  const router = useRouter(); // Step 2: Initialize the router
   const [formData, setFormData] = React.useState({
     title: "",
     url: "",
@@ -143,14 +144,8 @@ function AddLinkForm({ onAdd, setOpen, existingLinks, userEmail, className }) {
         toast.error("فشل في إضافة الرابط: " + result.error);
       } else {
         toast.success("تم إضافة الرابط بنجاح");
-        onAdd && onAdd(result.link);
         setOpen(false);
-        setFormData({
-          title: "",
-          url: "",
-          image_url: "",
-          order: Math.max(...existingLinks.map((link) => link.order), 0) + 2,
-        });
+        router.refresh(); // Step 3: Refresh the page data
       }
     } catch (err) {
       toast.error("حدث خطأ أثناء إضافة الرابط");
@@ -168,6 +163,7 @@ function AddLinkForm({ onAdd, setOpen, existingLinks, userEmail, className }) {
       onSubmit={handleSubmit}
       dir="rtl"
     >
+      {/* Form fields remain the same */}
       <div className="grid gap-3">
         <Label htmlFor="add-url" className="text-right">
           الرابط

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation"; // Step 1: Import useRouter
 import { Trash2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -26,7 +27,9 @@ import {
 import { deleteLink } from "@/app/_services/actionLinks";
 import { toast } from "sonner";
 
-function DrawerDeleteLink({ linkData, onDelete }) {
+// The component no longer needs the 'onDelete' prop
+function DrawerDeleteLink({ linkData }) {
+  const router = useRouter(); // Step 2: Initialize the router
   const [open, setOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -39,12 +42,8 @@ function DrawerDeleteLink({ linkData, onDelete }) {
         toast.error("فشل في حذف الرابط: " + result.error);
       } else if (result?.success) {
         toast.success("تم حذف الرابط بنجاح");
-        // Call the parent callback to update UI
-        if (onDelete) {
-          onDelete(linkData.id);
-        }
-
         setOpen(false);
+        router.refresh(); // Step 3: Refresh the page data
       }
     } catch (error) {
       toast.error("حدث خطأ أثناء حذف الرابط");

@@ -5,46 +5,38 @@ import { Card, CardContent } from "@/components/ui/card";
 import DrawerEditLink from "@/components/myUI/DrawerEditLink";
 import DrawerAddLink from "@/components/myUI/DrawerAddLink";
 import DrawerDeleteLink from "@/components/myUI/DrawerDeleteLink";
-import { deleteLink } from "../_services/actionLinks";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/client";
 
+// This component is now much simpler
 function Links({ linksData }) {
   const [userEmail, setUserEmail] = useState(null);
-  const sortedLinks = linksData?.sort((a, b) => a.order - b.order) || [];
 
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchUserEmail() {
       const supabase = createClient();
       const {
         data: { user },
-        error,
       } = await supabase.auth.getUser();
-      if (error || !user) {
-        console.error("No user found or error fetching user:", error);
-        return;
+      if (user) {
+        setUserEmail(user.email);
       }
-      setUserEmail(user.email);
     }
-
-    fetchUser();
+    fetchUserEmail();
   }, []);
 
-  const handleDeleteLink = (linkId) => {
-    deleteLink(linkId);
-  };
+  // The component now directly uses the sorted linksData prop
+  const sortedLinks = linksData?.sort((a, b) => a.order - b.order) || [];
 
   return (
     <div className="w-full flex flex-col items-end gap-6">
-      {/* Header with Add Button */}
       <div className="flex items-center justify-between w-full mt-2">
-        <DrawerAddLink existingLinks={sortedLinks} userEmail={userEmail} />
+        <DrawerAddLink userEmail={userEmail} />
         <h2 className="text-base md:text-2xl font-bold text-end">
           الروابط المخصصة
         </h2>
       </div>
 
-      {/* Links */}
       <div className="flex flex-row flex-wrap justify-center gap-1.5 md:gap-4 w-full">
         {sortedLinks.length > 0 ? (
           sortedLinks.map((link) => (
@@ -59,15 +51,14 @@ function Links({ linksData }) {
                 >
                   <div className="flex-shrink-0">
                     <img
-                      src={link.image_url}
+                      src={
+                        link.image_url ||
+                        "https://via.placeholder.com/80x80.png?text=No+Image"
+                      }
                       alt={link.title}
                       width={80}
                       height={80}
                       className="rounded-lg object-cover group-hover:scale-105 transition-transform duration-300 md:w-20 md:h-20 w-full h-30"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/80x80.png?text=No+Image";
-                      }}
                     />
                   </div>
 
@@ -78,10 +69,7 @@ function Links({ linksData }) {
 
                     <div className="flex gap-2 justify-end">
                       <DrawerEditLink linkData={link} />
-                      <DrawerDeleteLink
-                        linkData={link}
-                        onDelete={handleDeleteLink}
-                      />
+                      <DrawerDeleteLink linkData={link} />
                     </div>
                   </div>
                 </div>
@@ -96,10 +84,7 @@ function Links({ linksData }) {
                 لا توجد روابط
               </h3>
               <p className="text-gray-500">ابدأ بإضافة أول رابط لك</p>
-              <DrawerAddLink
-                existingLinks={sortedLinks}
-                userEmail={userEmail}
-              />
+              <DrawerAddLink userEmail={userEmail} />
             </div>
           </div>
         )}

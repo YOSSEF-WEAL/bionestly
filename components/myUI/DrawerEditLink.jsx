@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation"; // Step 1: Import useRouter
 import { Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -29,7 +30,8 @@ import { fetchUrlMetadata } from "@/lib/url-metadata";
 import { updateLink } from "@/app/_services/actionLinks";
 import { toast } from "sonner";
 
-function DrawerEditLink({ linkData, onSave }) {
+// The component no longer needs the 'onSave' prop
+function DrawerEditLink({ linkData }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -52,7 +54,7 @@ function DrawerEditLink({ linkData, onSave }) {
             قم بتعديل بيانات الرابط هنا. اضغط حفظ عند الانتهاء.
           </DialogDescription>
         </DialogHeader>
-        <LinkForm linkData={linkData} onSave={onSave} setOpen={setOpen} />
+        <LinkForm linkData={linkData} setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   ) : (
@@ -74,12 +76,7 @@ function DrawerEditLink({ linkData, onSave }) {
             قم بتعديل بيانات الرابط هنا. اضغط حفظ عند الانتهاء.
           </DrawerDescription>
         </DrawerHeader>
-        <LinkForm
-          linkData={linkData}
-          onSave={onSave}
-          setOpen={setOpen}
-          className="px-4"
-        />
+        <LinkForm linkData={linkData} setOpen={setOpen} className="px-4" />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">إلغاء</Button>
@@ -92,7 +89,8 @@ function DrawerEditLink({ linkData, onSave }) {
 
 export default DrawerEditLink;
 
-function LinkForm({ linkData, onSave, setOpen, className }) {
+function LinkForm({ linkData, setOpen, className }) {
+  const router = useRouter(); // Step 2: Initialize the router
   const [formData, setFormData] = React.useState({
     title: linkData?.title || "",
     url: linkData?.url || "",
@@ -142,8 +140,8 @@ function LinkForm({ linkData, onSave, setOpen, className }) {
         toast.error("فشل في تحديث الرابط: " + result.error);
       } else {
         toast.success("تم تحديث الرابط بنجاح");
-        onSave && onSave({ ...linkData, ...formData });
         setOpen(false);
+        router.refresh(); // Step 3: Refresh the page data
       }
     } catch (error) {
       toast.error("حدث خطأ أثناء تحديث الرابط");
@@ -161,6 +159,7 @@ function LinkForm({ linkData, onSave, setOpen, className }) {
       onSubmit={handleSubmit}
       dir="rtl"
     >
+      {/* Form fields remain the same */}
       <div className="grid gap-3">
         <Label htmlFor="url" className="text-right">
           الرابط

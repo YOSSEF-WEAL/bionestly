@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Profile from "../_blocks/Profile";
 import Links from "../_blocks/Links";
@@ -28,16 +26,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const searchParams = useSearchParams();
-
   useEffect(() => {
-    if (searchParams.get("new_user") === "true") {
-      toast.success("تم إنشاء الحساب بنجاح!", {
-        description: "مرحباً بك في صفحتك الشخصية.",
-      });
-      window.history.replaceState(null, "", "/account");
-    }
-
     async function fetchData(isRetry = false) {
       try {
         if (!isRetry) {
@@ -58,7 +47,7 @@ export default function AccountPage() {
         }
 
         if (!data.profile && !isRetry) {
-          setTimeout(() => fetchData(true), 1500); // Retry after 1.5s
+          setTimeout(() => fetchData(true), 1500);
         } else {
           setAccountData(data);
           setTemplates(data.templates);
@@ -71,7 +60,7 @@ export default function AccountPage() {
     }
 
     fetchData();
-  }, [searchParams]);
+  }, []); // Step 4: Remove searchParams from the dependency array
 
   if (loading) {
     return <LoadingSpinner />;

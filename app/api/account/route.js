@@ -3,12 +3,16 @@
 import { createClient } from "@/lib/server";
 import { NextResponse } from "next/server";
 
+// This export is still good practice, but we will add more explicit headers.
+export const dynamic = 'force-dynamic';
+
 export async function GET()
 {
     const supabase = await createClient();
 
     try
     {
+        // ... (The data fetching logic remains the same)
         const [
             userResult,
             templatesResult
@@ -24,25 +28,21 @@ export async function GET()
             return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
         }
 
-        // Fetch profile using the correct 'user_id' column
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('user_id', user.id) // THIS IS THE CRITICAL FIX
+            .eq('user_id', user.id)
             .single();
 
         if (profileError && profileError.code !== 'PGRST116')
         {
-            // The error you saw previously would have been thrown here.
-            // Now it should work correctly.
             throw new Error(`Error fetching profile: ${profileError.message}`);
         }
 
-        // Fetch links using the correct 'user_id' column
         const { data: links, error: linksError } = await supabase
             .from('links')
             .select('*')
-            .eq('user_id', user.id) // Assuming 'links' table also uses 'user_id'
+            .eq('user_id', user.id)
             .eq("is_deleted", false)
             .order('order', { ascending: true });
 
@@ -51,15 +51,29 @@ export async function GET()
             throw new Error(`Error fetching links: ${linksError.message}`);
         }
 
-        return NextResponse.json({
+        // Create the response object
+        const response = NextResponse.json({
             user,
             profile,
             links: links || [],
             templates: templatesResult.data || []
         });
 
+        // Step 2: Add explicit no-cache headers to the response.
+        // This is the most definitive way to prevent caching.
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+
+        return response;
+
     } catch (error)
     {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const errorResponse = NextResponse.json({ error: error.message }, { status: 500 });
+        // Also add no-cache headers to error responses
+        errorResponse.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        errorResponse.headers.set('Pragma', 'no-cache');
+        errorResponse.headers.set('Expires', '0');
+        return errorResponse;
     }
 }
