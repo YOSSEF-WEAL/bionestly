@@ -12,8 +12,8 @@ function Header({ session }) {
 
   return (
     <>
-      <div className="h-22" />
-      <header className="bg-secondary/20 backdrop-blur-lg shadow-md py-3 fixed top-0 left-0 w-full z-9">
+      <div className="h-22 header" />
+      <header className="bg-secondary/20 backdrop-blur-lg shadow-md py-3 fixed top-0 left-0 w-full z-9 header">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-6 w-full justify-between">

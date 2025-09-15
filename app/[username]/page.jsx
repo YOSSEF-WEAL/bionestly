@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import ClassicBioLink from "../_Templates/ClassicBioLink";
 
 // ✅ Shared function to fetch profile data
 async function getProfileData(username) {
@@ -41,17 +42,28 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const { display_name, bio, avatar_url } = data.profile;
+
   return {
-    title: `${data.profile.display_name || params.username} | Bionestly`,
-    description: data.profile.bio || "Discover this profile on Bionestly.",
+    title: `${display_name || params.username} | Bionestly`,
+    description: bio || "Discover this profile on Bionestly.",
+    openGraph: {
+      title: display_name || params.username,
+      description: bio || "Discover this profile on Bionestly.",
+      images: avatar_url ? [avatar_url] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: display_name || params.username,
+      description: bio || "Discover this profile on Bionestly.",
+      images: avatar_url ? [avatar_url] : [],
+    },
   };
 }
 
 // ✅ Page component
 export default async function Page({ params }) {
   const data = await getProfileData(params.username);
-
-  console.log("🚀 ~ Page ~ data:", data);
 
   if (!data?.profile) {
     return (
@@ -63,11 +75,13 @@ export default async function Page({ params }) {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">
-        {data.profile.display_name || params.username}
-      </h1>
-      <p>{data.profile.bio}</p>
+    <div className="profile-page">
+      <style>{`
+        header , .header, footer {
+          display: none !important;
+        }
+      `}</style>
+      <ClassicBioLink data={data} />
     </div>
   );
 }
