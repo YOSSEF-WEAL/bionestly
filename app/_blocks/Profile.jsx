@@ -348,67 +348,17 @@ function Profile({ profileData }) {
       )}
 
       {/* Social Media - الجزء المعدل */}
+
       <div className="flex flex-col-reverse md:flex-row justify-between gap-4 w-full">
         {/* منصة اختيارية جديدة */}
-        <div className=" flex justify-end">
+        <div className=" flex justify-end w-full">
           <SelectPlatforms
             profile_id={profileData.id}
             onPlatformSelect={handlePlatformSelect}
           />
         </div>
-        <h3 className=" text-end mb-2 font-medium text-2xl">
-          مواقع التواصل الاجتماعي
-        </h3>
       </div>
-      <div className="flex w-full justify-between items-center">
-        {/* قائمة المنصات المختارة */}
-        <div className="flex flex-row flex-wrap justify-end gap-4 w-full">
-          {socialLinks.map((link) => {
-            const platform = platformsData.find((p) => p.id === link.platform);
-            if (!platform) return null;
-
-            const iconName = toPascalCase(platform.icon_name_lucide);
-            const IconComponent = LucideIcons[iconName] || null;
-
-            return (
-              <div
-                key={link.id || link.platform}
-                className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
-                dir="rtl"
-              >
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor={`social-${link.platform}`}
-                    className="flex items-center gap-2"
-                  >
-                    {IconComponent && <IconComponent size={20} />}
-                    {platform.name}
-                  </Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      handleRemoveSocialLink(link.id || link.platform)
-                    }
-                  >
-                    <XIcon size={16} />
-                  </Button>
-                </div>
-                <Input
-                  type="url"
-                  id={`social-${link.platform}`}
-                  placeholder={`رابط ${platform.name}`}
-                  value={link.url_link || ""}
-                  onChange={(e) =>
-                    handleSocialLinkChange(link.platform, e.target.value)
-                  }
-                  disabled={isSaving}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <div className="flex w-full justify-between items-center"></div>
     </div>
   );
 }
