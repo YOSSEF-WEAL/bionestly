@@ -23,6 +23,7 @@ export default function AccountPage() {
   const fetchAccountData = async () => {
     try {
       setLoading(true);
+
       const response = await fetch("/api/account", { cache: "no-store" });
       if (!response.ok) {
         const errorData = await response.json();
@@ -34,6 +35,7 @@ export default function AccountPage() {
           "لم يتم العثور على المستخدم. يرجى تسجيل الدخول مرة أخرى."
         );
       }
+
       setAccountData(data);
       setTemplates(data.templates);
       setLoading(false);

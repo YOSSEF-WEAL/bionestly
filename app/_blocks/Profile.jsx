@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ProfileImageUploader from "@/components/myUI/ProfileImageUploader";
 import Link from "next/link";
+import SelectPlatforms from "./SelectPlatforms";
 
 function Profile({ profileData }) {
   const [formData, setFormData] = React.useState({
@@ -287,6 +288,10 @@ function Profile({ profileData }) {
             </div>
           );
         })}
+      </div>
+
+      <div className="w-full p-3 my-4 bg-white shadow-lg rounded-lg">
+        <SelectPlatforms profile_id={profileData.id} />
       </div>
 
       {/* Save / Cancel */}
