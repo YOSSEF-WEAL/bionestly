@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +12,13 @@ import {
   TwitterIcon,
   MessageCircleIcon,
   ArrowUpLeft,
+  XIcon,
 } from "lucide-react";
-import { updateProfile } from "@/app/_services/actionsProfile";
+import {
+  updateProfile,
+  upsertSocialLink,
+  deleteSocialLink,
+} from "@/app/_services/actionsProfile";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -25,9 +30,21 @@ import {
 import ProfileImageUploader from "@/components/myUI/ProfileImageUploader";
 import Link from "next/link";
 import SelectPlatforms from "./SelectPlatforms";
+import {
+  getPlatforms,
+  getSocialLinksById,
+} from "@/app/_services/data-services";
+import * as LucideIcons from "lucide-react";
+
+function toPascalCase(str) {
+  return str
+    .split(/[-_]/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join("");
+}
 
 function Profile({ profileData }) {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     display_name: profileData?.display_name || "",
     bio: profileData?.bio || "",
     facebook_url: profileData?.facebook_url || "",
@@ -39,35 +56,27 @@ function Profile({ profileData }) {
     username: profileData?.username || "",
   });
 
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [socialLinks, setSocialLinks] = useState([]);
+  const [platformsData, setPlatformsData] = useState([]);
 
-  const socialMediaPlatforms = [
-    {
-      key: "facebook_url",
-      label: "فيسبوك",
-      icon: FacebookIcon,
-      placeholder: "رابط فيسبوك",
-    },
-    {
-      key: "instagram_url",
-      label: "إنستغرام",
-      icon: InstagramIcon,
-      placeholder: "رابط إنستغرام",
-    },
-    {
-      key: "twitter_url",
-      label: "تويتر",
-      icon: TwitterIcon,
-      placeholder: "رابط تويتر",
-    },
-    {
-      key: "whatsapp_url",
-      label: "واتساب",
-      icon: MessageCircleIcon,
-      placeholder: "رقم الموبايل مع كود الدولة",
-    },
-  ];
+  // جلب البيانات الأولية
+  useEffect(() => {
+    const fetchData = async () => {
+      // جلب المنصات
+      const platforms = await getPlatforms();
+      setPlatformsData(platforms);
+
+      // جبل الروابط الاجتماعية الحالية
+      if (profileData?.id) {
+        const links = await getSocialLinksById(profileData.id);
+        setSocialLinks(links);
+      }
+    };
+
+    fetchData();
+  }, [profileData]);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -106,6 +115,72 @@ function Profile({ profileData }) {
     });
     setIsEditing(false);
   };
+
+  // دالة إضافة منصة جديدة
+  const handlePlatformSelect = (platform) => {
+    // التحقق إذا كانت المنصة مضافه already
+    if (!socialLinks.some((link) => link.platform === platform.id)) {
+      setSocialLinks((prev) => [
+        ...prev,
+        {
+          platform: platform.id,
+          url_link: "",
+          isNew: true, // علامة أن هذا رابط جديد لم يحفظ بعد
+        },
+      ]);
+    }
+  };
+
+  // دالة تغيير رابط
+  const handleSocialLinkChange = async (platformId, url) => {
+    setSocialLinks((prev) =>
+      prev.map((link) =>
+        link.platform === platformId ? { ...link, url_link: url } : link
+      )
+    );
+
+    // حفظ تلقائي عند التغيير
+    if (url.trim() !== "") {
+      setIsSaving(true);
+      const result = await upsertSocialLink(profileData.id, platformId, url);
+      if (result?.error) {
+        toast.error("فشل في حفظ الرابط: " + result.error);
+      } else {
+        // تحديث الـ id إذا كان رابط جديد
+        if (result.link) {
+          setSocialLinks((prev) =>
+            prev.map((link) =>
+              link.platform === platformId
+                ? { ...link, id: result.link.id, isNew: false }
+                : link
+            )
+          );
+        }
+      }
+      setIsSaving(false);
+    }
+  };
+
+  // دالة إزالة رابط
+  const handleRemoveSocialLink = async (linkIdOrPlatformId) => {
+    // إذا كان رابط موجود في قاعدة البيانات (لديه id)
+    if (typeof linkIdOrPlatformId === "number") {
+      const result = await deleteSocialLink(linkIdOrPlatformId);
+      if (result?.error) {
+        toast.error("فشل في حذف الرابط: " + result.error);
+        return;
+      }
+    }
+
+    // إزالة من الواجهة
+    setSocialLinks((prev) =>
+      prev.filter(
+        (link) =>
+          link.id !== linkIdOrPlatformId && link.platform !== linkIdOrPlatformId
+      )
+    );
+  };
+
   // صورة افتراضية
   const placeholderAvatar =
     "https://ajxeqiiumzuqfljbkhln.supabase.co/storage/v1/object/public/app%20images/user_Placeholder.png";
@@ -260,40 +335,6 @@ function Profile({ profileData }) {
           </div>
         </div>
       </div>
-      {/* Social Media */}
-      <div className="flex flex-row flex-wrap justify-end gap-4 w-full">
-        <h3 className="w-full text-end mb-2 font-medium text-2xl">
-          مواقع التواصل الاجتماعي
-        </h3>
-        {socialMediaPlatforms.map((platform) => {
-          const IconComponent = platform.icon;
-          return (
-            <div
-              key={platform.key}
-              className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
-              dir="rtl"
-            >
-              <Label htmlFor={platform.key} className="flex items-center gap-2">
-                <IconComponent size={20} />
-                {platform.label}
-              </Label>
-              <Input
-                type="url"
-                id={platform.key}
-                placeholder={platform.placeholder}
-                value={formData[platform.key]}
-                onChange={(e) => handleChange(platform.key, e.target.value)}
-                disabled={isSaving}
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="w-full p-3 my-4 bg-white shadow-lg rounded-lg">
-        <SelectPlatforms profile_id={profileData.id} />
-      </div>
-
       {/* Save / Cancel */}
       {isEditing && (
         <div className="flex justify-end gap-3 mt-4 w-full mb-5">
@@ -305,6 +346,69 @@ function Profile({ profileData }) {
           </Button>
         </div>
       )}
+
+      {/* Social Media - الجزء المعدل */}
+      <div className="flex flex-row justify-between gap-4 w-full">
+        {/* منصة اختيارية جديدة */}
+        <div className=" flex justify-end">
+          <SelectPlatforms
+            profile_id={profileData.id}
+            onPlatformSelect={handlePlatformSelect}
+          />
+        </div>
+        <h3 className=" text-end mb-2 font-medium text-2xl">
+          مواقع التواصل الاجتماعي
+        </h3>
+      </div>
+      <div className="flex w-full justify-between items-center">
+        {/* قائمة المنصات المختارة */}
+        <div className="flex flex-row flex-wrap justify-end gap-4 w-full">
+          {socialLinks.map((link) => {
+            const platform = platformsData.find((p) => p.id === link.platform);
+            if (!platform) return null;
+
+            const iconName = toPascalCase(platform.icon_name_lucide);
+            const IconComponent = LucideIcons[iconName] || null;
+
+            return (
+              <div
+                key={link.id || link.platform}
+                className="flex flex-col w-full max-w-full md:max-w-sm gap-3 bg-white shadow-lg rounded-lg p-3"
+                dir="rtl"
+              >
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor={`social-${link.platform}`}
+                    className="flex items-center gap-2"
+                  >
+                    {IconComponent && <IconComponent size={20} />}
+                    {platform.name}
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      handleRemoveSocialLink(link.id || link.platform)
+                    }
+                  >
+                    <XIcon size={16} />
+                  </Button>
+                </div>
+                <Input
+                  type="url"
+                  id={`social-${link.platform}`}
+                  placeholder={`رابط ${platform.name}`}
+                  value={link.url_link || ""}
+                  onChange={(e) =>
+                    handleSocialLinkChange(link.platform, e.target.value)
+                  }
+                  disabled={isSaving}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

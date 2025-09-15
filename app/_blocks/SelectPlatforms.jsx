@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as LucideIcons from "lucide-react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +32,7 @@ function toPascalCase(str) {
     .join("");
 }
 
-function SelectPlatforms({ profile_id }) {
+function SelectPlatforms({ profile_id, onPlatformSelect }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [platforms, setPlatforms] = React.useState([]);
@@ -79,6 +79,19 @@ function SelectPlatforms({ profile_id }) {
     }
   }, [search, platforms]);
 
+  const handleSelect = (currentValue) => {
+    const selectedPlatform = platforms.find(
+      (p) => p.id.toString() === currentValue
+    );
+
+    if (selectedPlatform && onPlatformSelect) {
+      onPlatformSelect(selectedPlatform);
+    }
+
+    setSearch(""); // مسح البحث بعد الاختيار
+    setOpen(false);
+  };
+
   if (loading)
     return <div className="text-sm text-gray-500">جاري تحميل المنصات...</div>;
 
@@ -91,20 +104,19 @@ function SelectPlatforms({ profile_id }) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? platforms.find((p) => p.id.toString() === value)?.name
-            : "اختر منصة..."}
+          <Plus className="mr-2" />
+          إضافة منصة
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className="w-[250px] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="ابحث عن منصة..."
             className="h-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onValueChange={setSearch}
           />
           <CommandList>
             <CommandEmpty>لم يتم العثور على منصات</CommandEmpty>
@@ -116,11 +128,8 @@ function SelectPlatforms({ profile_id }) {
                 return (
                   <CommandItem
                     key={platform.id}
-                    value={platform.id.toString()}
-                    onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue);
-                      setOpen(false);
-                    }}
+                    value={platform.name}
+                    onSelect={() => handleSelect(platform.id.toString())}
                   >
                     {IconComponent && (
                       <IconComponent className="mr-2 w-4 h-4" />
