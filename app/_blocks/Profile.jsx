@@ -348,7 +348,7 @@ function Profile({ profileData }) {
       )}
 
       {/* Social Media - الجزء المعدل */}
-      <div className="flex flex-row justify-between gap-4 w-full">
+      <div className="flex flex-col-reverse md:flex-row justify-between gap-4 w-full">
         {/* منصة اختيارية جديدة */}
         <div className=" flex justify-end">
           <SelectPlatforms
