@@ -28,7 +28,7 @@ function Header({ session }) {
               </button>
               <Link href="/" className="inline-flex items-center gap-2">
                 <Image
-                  src="/logo-text.png"
+                  src="/logo-text-svg-darck.svg"
                   alt="Logo"
                   width={150}
                   height={100}
