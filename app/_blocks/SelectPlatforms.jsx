@@ -29,6 +29,7 @@ import {
   upsertSocialLink,
   deleteSocialLink,
 } from "@/app/_services/actionsProfile";
+import LoadingSpinnerSelectedPlatform from "@/components/myUI/LoadingSpinnerSelectedPlatform";
 
 function toPascalCase(str) {
   return str
@@ -205,7 +206,11 @@ function SelectPlatforms({ profile_id, onPlatformSelect, onLinksChange }) {
   };
 
   if (loading)
-    return <div className="text-sm text-gray-500">جاري تحميل المنصات...</div>;
+    return (
+      <div className="text-sm text-gray-500 w-full flex items-center justify-center">
+        <LoadingSpinnerSelectedPlatform />
+      </div>
+    );
 
   return (
     <div className="w-full">

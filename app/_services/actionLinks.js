@@ -87,3 +87,22 @@ export async function deleteLink(linkId)
     revalidatePath("/account");
     return { success: true, deletedLink: data }; // Return the deleted link's ID
 }
+
+
+
+
+export async function addClick(link_id, profile_id)
+{
+    const supabase = await createClient();
+    const { error } = await supabase
+        .from("clicks")
+        .insert([{ link_id, profile_id }]);
+
+    if (error)
+    {
+        console.error("Error adding click:", error);
+        throw new Error(error.message);
+    }
+
+    return true;
+}
