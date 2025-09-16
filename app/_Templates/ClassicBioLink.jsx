@@ -1,6 +1,7 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import * as LucideIcons from "lucide-react";
 import ActionsButtons from "./ActionsButtons";
+import Footer from "./Footer";
 
 function toPascalCase(str) {
   return str
@@ -11,7 +12,7 @@ function toPascalCase(str) {
 
 function SocialLinks({ social_links }) {
   return (
-    <div className="w-full flex flex-row justify-center gap-2 mt-5 mb-2 pb-4 border-b-2 border-gray-200">
+    <div className="w-full flex flex-row justify-center gap-2 mt-5 pb-4 border-b-2 border-gray-200">
       {social_links?.map((social, idx) => {
         const iconName = social.platforms.icon_name_lucide;
         const Icon = LucideIcons[toPascalCase(iconName)] || LucideIcons.Globe;
@@ -37,7 +38,7 @@ function ClassicBioLink({ data }) {
   const { profile, links, social_links } = data;
 
   return (
-    <div className="min-h-screen w-full md:max-w-[500px] mb-10 mx-auto md:rounded-2xl overflow-hidden flex flex-col items-center bg-gray-50 relative -mt-2 md:mt-5">
+    <div className="w-full md:max-w-[500px] mb-10 mx-auto md:rounded-2xl overflow-hidden flex flex-col items-center bg-gray-50 relative -mt-2 md:mt-5">
       <ActionsButtons username={profile.username} />
       {/* Cover */}
       <div
@@ -90,6 +91,7 @@ function ClassicBioLink({ data }) {
           </div>
         ))}
       </div>
+      <Footer />
     </div>
   );
 }
