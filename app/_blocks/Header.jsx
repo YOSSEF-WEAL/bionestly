@@ -13,7 +13,7 @@ function Header({ session }) {
   return (
     <>
       <div className="h-22 header" />
-      <header className="bg-secondary/20 backdrop-blur-lg shadow-md py-3 fixed top-0 left-0 w-full z-9 header">
+      <header className="bg-primary text-white backdrop-blur-lg shadow-md py-3 fixed top-0 left-0 w-full z-9 header">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-6 w-full justify-between">
@@ -27,32 +27,37 @@ function Header({ session }) {
                 {open ? <XIcon /> : <MenuIcon />}
               </button>
               <Link href="/" className="inline-flex items-center gap-2">
-                {/* <Image src="/logo.svg" alt="Logo" width={28} height={28} /> */}
-                <h1 className="text-lg font-semibold text-foreground">
+                <Image
+                  src="/logo-text.png"
+                  alt="Logo"
+                  width={150}
+                  height={100}
+                />
+                {/* <h1 className="text-lg font-semibold text-foreground">
                   BioNestly
-                </h1>
+                </h1> */}
               </Link>
             </div>
 
             <nav className="hidden md:flex items-center gap-6 text-sm">
-              <Link href="/" className="hover:text-primary transition-colors">
+              <Link href="/" className="hover:text-secondary transition-colors">
                 الرئيسية
               </Link>
               <Link
                 href="/features"
-                className="hover:text-primary transition-colors"
+                className="hover:text-secondary transition-colors"
               >
                 المميزات
               </Link>
               <Link
                 href="/pricing"
-                className="hover:text-primary transition-colors"
+                className="hover:text-secondary transition-colors"
               >
                 الأسعار
               </Link>
               <Link
                 href="/contact"
-                className="hover:text-primary transition-colors"
+                className="hover:text-secondary transition-colors"
               >
                 تواصل
               </Link>
