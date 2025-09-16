@@ -19,7 +19,7 @@ function Header({ session }) {
             <div className="flex items-center gap-6 w-full justify-between">
               <button
                 type="button"
-                className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent/20 focus-visible:ring-2 focus-visible:ring-ring"
+                className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent/20 focus-visible:ring-2 focus-visible:ring-ring  bg-white"
                 aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
@@ -87,7 +87,7 @@ function Header({ session }) {
 
           {open && (
             <div className="md:hidden mt-3 rounded-md border border-border bg-background shadow-sm">
-              <nav className="flex flex-col divide-y">
+              <nav className="flex flex-col divide-y text-primary">
                 <Link
                   href="/"
                   className="px-4 py-3 hover:bg-accent/20"
