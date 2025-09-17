@@ -69,7 +69,7 @@ function ClassicBioLink({ data }) {
   const { profile, links, social_links } = data;
 
   return (
-    <div className="w-full md:max-w-[500px] mb-10 mx-auto md:rounded-2xl overflow-hidden flex flex-col items-center bg-gray-50 relative -mt-2 md:mt-5">
+    <div className="w-full md:max-w-[500px] md:mb-10 mx-auto md:rounded-2xl overflow-hidden flex flex-col items-center bg-gray-50 relative -mt-2 md:mt-5">
       <ActionsButtons username={profile.username} />
 
       {/* Cover */}
@@ -92,7 +92,7 @@ function ClassicBioLink({ data }) {
         </Avatar>
 
         <h1 className="mt-4 text-2xl font-bold">{profile.display_name}</h1>
-        <p className="text-gray-600">{profile.bio}</p>
+        <p className="text-gray-600 line-clamp-3 text-center">{profile.bio}</p>
       </div>
 
       {/* Social Links */}

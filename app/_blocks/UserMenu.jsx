@@ -21,6 +21,7 @@ import {
 import { logout } from "@/app/_services/actions";
 
 export default function UserMenu({ user, mobile = false, onAction }) {
+  console.log("🚀 ~ UserMenu ~ user:", user);
   const [open, setOpen] = React.useState(false);
 
   // Define a placeholder image URL
@@ -46,7 +47,7 @@ export default function UserMenu({ user, mobile = false, onAction }) {
 
   if (mobile) {
     return (
-      <div className="flex items-center gap-3 w-full">
+      <div className="flex items-center gap-3 w-full ">
         <DropdownMenu className="w-full">
           <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full px-2 py-1 focus-visible:ring-2 focus-visible:ring-ring w-full">
             <Image
@@ -59,17 +60,12 @@ export default function UserMenu({ user, mobile = false, onAction }) {
             <span className="text-sm font-medium max-w-[160px] truncate">
               {user?.name || ""}
             </span>
-            <ChevronDownIcon className="size-4 text-muted-foreground" />
+            <ChevronDownIcon className="size-5 text-white" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-64">
             <DropdownMenuLabel className="flex items-center gap-3">
               <Image
-                src={
-                  user?.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    user?.name || "User"
-                  )}&background=0D8ABC&color=fff`
-                }
+                src={user?.image || placeholderAvatar}
                 alt={user?.name || "User"}
                 width={36}
                 height={36}
@@ -113,12 +109,13 @@ export default function UserMenu({ user, mobile = false, onAction }) {
     <DropdownMenu>
       <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full px-2 py-1 focus-visible:ring-2 focus-visible:ring-ring">
         <Image
-          src={
-            user?.image ||
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              user?.name || "User"
-            )}&background=0D8ABC&color=fff`
-          }
+          // src={
+          //   user?.image ||
+          //   `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          //     user?.name || "User"
+          //   )}&background=0D8ABC&color=fff`
+          // }
+          src={user?.image || placeholderAvatar}
           alt={user?.name || "User"}
           width={32}
           height={32}
@@ -127,17 +124,18 @@ export default function UserMenu({ user, mobile = false, onAction }) {
         <span className="text-sm font-medium max-w-[160px] truncate">
           {user?.name || ""}
         </span>
-        <ChevronDownIcon className="size-4 text-muted-foreground" />
+        <ChevronDownIcon className="size-5 text-white" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
         <DropdownMenuLabel className="flex items-center gap-3">
           <Image
-            src={
-              user?.image ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                user?.name || "User"
-              )}&background=0D8ABC&color=fff`
-            }
+            // src={
+            //   user?.image ||
+            //   `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            //     user?.name || "User"
+            //   )}&background=0D8ABC&color=fff`
+            // }
+            src={user?.image || placeholderAvatar}
             alt={user?.name || "User"}
             width={36}
             height={36}
