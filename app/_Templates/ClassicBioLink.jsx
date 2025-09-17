@@ -36,13 +36,10 @@ function SocialLinks({ social_links }) {
   );
 }
 
-// مكون للتعامل مع الرابط الفردي
 function LinkItem({ link, profileId }) {
   const handleClick = () => {
-    // فتح الرابط فوراً
     window.open(link.url, "_blank", "noopener,noreferrer");
 
-    // تسجيل النقرة في الخلفية (لا ننتظر النتيجة)
     addClick(link.id, profileId).catch((error) => {
       console.error("خطأ في تسجيل النقرة:", error);
     });

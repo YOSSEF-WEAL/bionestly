@@ -64,15 +64,21 @@ export async function generateMetadata({ params }) {
 // ✅ Page component
 export default async function Page({ params }) {
   const data = await getProfileData(params.username);
+  console.log(data.profile.template);
 
   if (!data?.profile) {
     return (
       <div className="p-6">
-        <h1 className="text-xl font-bold">User not found</h1>
+        <h1 className="text-xl font-bold h-full">User not found</h1>
         <p>This profile does not exist.</p>
       </div>
     );
   }
+  const templateName = data.profile.template;
+
+  const TemplateComponent = (
+    await import(`@/app/_Templates/${templateName}.jsx`)
+  ).default;
 
   return (
     <div className="profile-page">
@@ -81,7 +87,7 @@ export default async function Page({ params }) {
           display: none !important;
         }
       `}</style>
-      <ClassicBioLink data={data} />
+      <TemplateComponent data={data} />
     </div>
   );
 }

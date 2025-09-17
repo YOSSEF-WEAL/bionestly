@@ -4,7 +4,7 @@ import React from "react";
 
 function Footer() {
   return (
-    <div className="w-full p-4 bg-white flex justify-center items-center mt-2 border-t-2 border-gray-400/35 ">
+    <div className="w-full p-4 bg-white flex justify-center items-center mt-2 border-t-2 border-gray-400/35 z-999">
       <Link
         href={"/"}
         className="flex items-center justify-center flex-row gap-2"

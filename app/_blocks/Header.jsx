@@ -39,27 +39,27 @@ function Header({ session }) {
               </Link>
             </div>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm">
+            <nav className="hidden md:flex items-center gap-2 text-sm">
               <Link href="/" className="hover:text-secondary transition-colors">
-                الرئيسية
+                <Button variant={"ghost"}>الرئيسية</Button>
               </Link>
               <Link
                 href="/features"
                 className="hover:text-secondary transition-colors"
               >
-                المميزات
+                <Button variant={"ghost"}>المميزات</Button>
               </Link>
               <Link
                 href="/pricing"
                 className="hover:text-secondary transition-colors"
               >
-                الأسعار
+                <Button variant={"ghost"}>الأسعار</Button>
               </Link>
               <Link
                 href="/contact"
                 className="hover:text-secondary transition-colors"
               >
-                تواصل
+                <Button variant={"ghost"}>تواصل</Button>
               </Link>
             </nav>
 
@@ -69,13 +69,13 @@ function Header({ session }) {
               ) : (
                 <>
                   <Link href="/auth/login">
-                    <Button variant="ghost">
+                    <Button variant="outlin2">
                       <LogInIcon />
                       تسجيل الدخول
                     </Button>
                   </Link>
                   <Link href="/auth/sign-up">
-                    <Button>
+                    <Button variant={"secondary"}>
                       <UserPlusIcon />
                       إنشاء حساب
                     </Button>
